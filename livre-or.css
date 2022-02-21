@@ -1,0 +1,107 @@
+body{
+	background-color: lightgoldenrodyellow;
+	position: relative;
+	height: 97vh;
+}
+
+/*style des liens header */
+input[type=submit]{
+	background-color: #f4b094;
+	outline: 1px solid black;
+	color: black;
+	padding: 10px;
+	border-radius: 10px;
+	transition: 0.2s linear;
+	margin : 2px;	
+}
+
+input[type=submit]:hover{
+	background-color: #f09670;
+	outline-color: red;
+	color: white;
+
+}
+
+.button_header{
+	display: flex;
+	justify-content: flex-end;
+}
+
+
+
+/*style de la page index*/
+.liens_index{
+	display: flex;
+	justify-content: space-around;
+	margin-top: 10%;
+}
+
+.i_link{
+	background-color: lightcoral;
+	padding: 10px;
+	font-size: 30px;
+	border: 3px solid black;
+	border-radius: 10px;
+	transition: 0.3s linear;
+}
+
+.i_link:hover{
+	background-color: #fa6c5c;
+	text-decoration: none;
+	color: white;
+	text-align: center;
+}
+
+
+
+/*style des commentaires du livre d'or*/
+.comment{
+	display: flex;
+	flex-flow: column nowrap;
+	justify-content: center;
+	align-items: center;
+	text-align: left;
+	font-size: 20px;
+}
+	
+.comred{
+	display: flex;
+	justify-content: center;
+	margin-bottom: 3%;
+}
+
+.com{
+	color: darkblue;
+}
+
+.com_form{
+	display: flex;
+	justify-content: center;
+	flex-direction: column;
+	width: 80%;
+	margin-top: 10%;
+}
+
+
+/* style des liens footer */
+.footer_button{
+	position: absolute;
+	border-top: 2px solid orangered;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-evenly;
+	bottom: 0px;
+	height: 20%;
+	width: 100.45%;
+	margin-left: -10px;
+	padding-left: 10px;
+}
+
+a{
+	text-decoration: none;
+	color: black;
+}
+a:hover{
+	text-decoration: underline;
+	color: red;
+}

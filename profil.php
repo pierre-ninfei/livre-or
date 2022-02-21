@@ -1,135 +1,109 @@
-<?php 
-
-include('phpspe/logs.php');
-
-//if user is not logged in, redirect 
-
-if(!isset($_SESSION['username'])){
-	header('location: connexion.php');
-}
-
-$userc = $_SESSION['username'];
-
-$sql = "SELECT * FROM utilisateurs WHERE login = '$userc'";
-$query = mysqli_query($bdd, $sql);
-$utilisateur = mysqli_fetch_all($query);
-
-//Retrieving user infos from database
-
-$usernamem = $utilisateur[0][3];
-$nomm = $utilisateur[0][1];
-$prenomm = $utilisateur[0][2];
-$passwordm = $utilisateur[0][4];
-
-?>
-
 <!DOCTYPE html>
 <html>
-	<head>
-		<meta charset="utf-8">
-		<meta name="viewport" content="width=device-width, initial-scale=1">
-		<link rel="stylesheet" href="moduleconnexion.css">
-		<title> Modifiez votre profil si besoin</title>
-	</head>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="livre-or.css">
+	<title>Modifiez votre profil</title>
+</head>
 
-	<header>
-		<?php include('elem/header.php'); ?>
-	</header>
+<header>
+	<?php include('header.php'); ?>
+</header>
 
-	<body>
-		<h2 style="padding-bottom: 5%;"> Bienvenue <?php echo $_SESSION['username']; ?>, <br/> Effectuez les modifications souhaitées ci-dessous. </h2>
-		<form method="post" action="profil.php">
-			<label for="prenom"> Prénom </br> </label>
-			<input type="text" name="prenomm" value="<?php echo $prenomm; ?>"/> <br/><br/>
-
-			<label for="prenom"> Nom </br> </label>
-			<input type="text" name="nomm" value="<?php echo $nomm; ?>"/> <br/><br/>
-
-			<label for="prenom"> Nom d'utilisateur </br> </label>
-			<input type="text" name="loginm" value="<?php echo $usernamem; ?>"/> <br/><br/>
-
-			<label for="prenom"> Mot de passe </br> </label>
-			<input type="password" name="passwordm" value="<?php echo $passwordm; ?>"/> <br/><br/>
-			<div style="color: green; font-size: 40px;"> <?php if(isset($_SESSION['succes'])){ echo $_SESSION['succes'], "<br/>", "<br/>"; } ?> </div>
-			<input type="submit" name="validerm" value="Confirmer"/>
-		</form>
-
-<?php 
-//debug invalid index 
-
-if(isset($_POST['validerm'])){
-	$validerm = $_POST['validerm'];
-}
-
-//check for input errors
-
-if(isset($_POST['loginm'])){
-	if(empty($_POST['loginm'])){
-		array_push($errors, "Veuillez saisir un nouveau nom d'utilisateur");
+<body>
+	<?php
+	if(!isset($_SESSION['login'])){
+   		header('location: connexion.php');
 	}
-	else{
-		$usernamem = $_POST['loginm'];
+
+	/*  ////////// définition des variables \\\\\\\\\ */
+	$errors = array();
+	$user = $_SESSION['login'];
+
+	/*  ///////// connexion base de donées et requètes  \\\\\\\\  */
+
+	$requete = $db->prepare("SELECT * FROM utilisateurs WHERE login = '$user'");
+	$requete->execute();
+	$reqdata = $requete->fetchAll();
+
+	    /*  ///////// varriables   \\\\\\\\  */
+	$login = $reqdata[0]['login'];  
+	$password_old = $reqdata[0]['password'];
+
+	    /*  ///////// conditions des changements des infos utilisateurs  \\\\\\\\  */
+	if(isset($_POST['envoyer'])){
+	    $newlogin = $_POST['login'];
+	    $old_password = $_POST['password_old'];
+	    $newpassword = $_POST['password'];
+	    $newpassword2 = $_POST['password2'];
+
+	    if (isset($_POST['password']) && isset($_POST['password2']) && isset($_POST['password_old'])){
+	        if(password_verify($old_password, $password_old) == true){
+	            if($newpassword == $newpassword2 ){
+	                $npassword = password_hash($newpassword, PASSWORD_DEFAULT);
+	                $req = $db->prepare("UPDATE `utilisateurs` SET password = '$npassword' WHERE login = '$user'");
+	                $req->execute();
+	            }
+	            else{
+	                array_push($errors, "Veuillez saisir un mot de passe identique");
+	            }
+	        }
+	        else{
+	            array_push($errors, "Veuillez saisir l'ancien mot de passe");
+	        }
+	    }
+
+	    if (isset($_POST['login']) && $_POST['login'] != $result[0]['login']){   
+	        $login = $_POST['login'];
+	        $newlogin = $db->prepare("UPDATE `utilisateurs` SET login = '$login' WHERE login ='$user' ");
+	        $newlogin->execute();
+	        
+	        
+	    }
+
+	    if(count($errors) == 0 && isset($_POST['envoyer'])){
+
+	        $_SESSION['login'] = $login;
+	        header('location: index.php');
+	    }
 	}
-}
+	?>
 
-if(isset($_POST['nomm'])){
-	if(empty($_POST['nomm'])){
-		array_push($errors, "Veuillez saisir un nouveau nom de famille");
-	}
-	else{
-		$nomm = $_POST['nomm'];
-	}
-}
+	<h1 class="p_title"><i>Votre Profil.  </i></h1> 
+		<h3 class=""> Veuillez remplir les champs suivants pour modifier votre profil </h3>
+	    <container class="p_i_container2">
+	        <form class = "p_i_form" action="" method="post">
+                <label for="login">Login :</label>
+                <input type="text" placeholder="Login" value="<?php echo $user; ?>" name="login"/></br>
+          <br>
+            <div class="button">
+                <input type="submit" value="Modifier le login" name= "envoyer">
+            </div>
+        </form>
+        <form class = "p_i_form" action="" method="post">
+                <label for="password">Ancien Password:</label>
+                <input type="password" value="<?php if(isset($_POST['password_old'])){echo $_POST['password_old'];}; ?>" name="password_old"></br>
+                <label for="password">Password:</label>
+                <input type="password" placeholder="password" value="<?php if(isset($_POST['password'])){echo $_POST['password'];}; ?>" name="password"></br>
+                <label for="password2">Password confirmation :</label>
+                <input  type ="password" placeholder="password confirmation" name="password2"/></br>
+          <br>
+            <div class="button">
+                <input type="submit" value="Modifier le password" name="envoyer">
+            </div>
+        </form>
+    </container>
+    <?php if(count($errors) > 0) : ?>
+        <div style="font-family : monospace;">
+    <?php foreach($errors as $error) : ?>
+        <p style="color:red;"> <?php echo $error; ?> </p>
+    <?php endforeach ?>
+        </div>
+    <?php endif ?>
+</body>
 
-if(isset($_POST['prenomm'])){
-	if(empty($_POST['prenomm'])){
-		array_push($errors, "Veuillez saisir un nouveau prénom");
-	}
-	else{
-		$prenomm = $_POST['prenomm'];
-	}
-}
-
-if(isset($_POST['passwordm'])){
-	if(empty($_POST['passwordm'])){
-		array_push($errors, "Veuillez saisir un nouveau mot de passe");
-	}
-	else{
-		$passwordm = $_POST['passwordm'];
-	}
-}
-
-// check if new username already exists in bdd 
-
-$user_check = "SELECT * FROM utilisateurs WHERE login ='$usernamem' LIMIT 1";
-
-$results = mysqli_query($bdd, $user_check);
-$utilisateur = mysqli_fetch_assoc($results);
-
-if($utilisateur) {
-	if($utilisateur['login'] === $usernamem && $utilisateur['login'] != $userc) {
-		array_push($errors, "Ce nom d'utilisateur est déjà utilisé");
-	}
-}
-
-//if no errors, execute modifications
-
-if(count($errors) == 0 && isset($_POST['validerm'])){
-	$query = "UPDATE utilisateurs SET login = '$usernamem', nom = '$nomm', prenom = '$prenomm', password = '$passwordm' WHERE login = '$userc'";
-	mysqli_query($bdd, $query);
-	$_SESSION['username'] = $usernamem;
-	$_SESSION['nom'] = $nomm;
-	$_SESSION['prenom'] = $prenomm;
-	$_SESSION['password'] = $passwordm;
-	$_SESSION['succes'] = "Modifications validées";
-	header('location: profil.php');
-}
-?>
-
-		<div style="color: red;"> <?php include('phpspe/errors.php'); ?> </div>
-	</body>
-
-	<footer>
-		<?php include('elem/footer.php'); ?>
-	</footer>
+<footer>
+	<?php include("footer.php"); ?>
+</footer>
 </html>
